@@ -1,50 +1,69 @@
-# Welcome to your Expo app 👋
+# Watcher
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Watcher is an Android behavior analysis app built using Expo and React Native.
+It provides structured, filtered access to Android UsageStats data for understanding real user app usage patterns.
 
-## Get started
+## Why Watcher exists
 
-1. Install dependencies
+Android already collects detailed app usage data at the system level, but this data is:
+- Protected by permissions
+- Extremely noisy
+- Difficult to interpret directly
+- Not suitable for analytics or AI training without preprocessing
 
-   ```bash
-   npm install
-   ```
+Watcher acts as a **trusted bridge** between Android’s system-level usage logs and higher-level behavior analysis.
 
-2. Start the app
+## What Watcher does (Current phase)
 
-   ```bash
-   npx expo start
-   ```
+Watcher:
+- Requests and manages Android Usage Access permission
+- Queries historical app usage events (foreground/background)
+- Filters out system noise (launcher, keyboard, system UI, etc.)
+- Converts raw events into meaningful **usage sessions**
+- Discards accidental or impulsive app opens (e.g. < 3 seconds)
+- Supports querying usage data for arbitrary time windows (e.g. last 1 hour, last 24 hours)
 
-In the output, you'll find options to open the app in a
+## What Watcher does NOT do (by design)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- It does not continuously monitor apps in the background
+- It does not run persistent services
+- It does not spy on user content
+- It does not track keystrokes or screen contents
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Watcher relies on Android’s existing system logs instead of live monitoring.
 
-## Get a fresh project
+## Core Concepts
 
-When you're ready, run:
+### Usage Events
+Android logs when apps move to:
+- Foreground
+- Background
 
-```bash
-npm run reset-project
-```
+Watcher queries these events using `expo-android-usagestats`.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Sessionization
+A usage session is defined as:
+- MOVE_TO_FOREGROUND → MOVE_TO_BACKGROUND
+- Same package name
+- Duration ≥ threshold (default: 3 seconds)
 
-## Learn more
+### Noise Filtering
+The following are excluded:
+- System UI
+- Launchers
+- Keyboard
+- Permission dialogs
+- Watcher itself
+- Developer / Expo tooling
 
-To learn more about developing your project with Expo, look at the following resources:
+This ensures the data reflects **intentional human behavior**, not system activity.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Example Output
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```json
+{
+  "packageName": "com.instagram.android",
+  "startTime": 1769230931094,
+  "endTime": 1769231164021,
+  "duration": 232927
+}
