@@ -1,7 +1,7 @@
 # Watcher
 
 Watcher is an Android behavior analysis app built using Expo and React Native.
-It provides structured, filtered access to Android UsageStats data for understanding real user app usage patterns.
+It provides structured, filtered access to Android UsageStats data for understanding real user app usage patterns. 
 
 ## Why Watcher exists
 
@@ -69,4 +69,6 @@ This ensures the data reflects **intentional human behavior**, not system activi
 }
 
 ##Current Phase
-Noise Filtering 
+Noise Filtering
+##Next Lhase 
+Data Storage for future analysis 
